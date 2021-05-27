@@ -26,7 +26,7 @@ function kickCSS(s) {
 
         // console.log(item.className)
 
-        const regex = /(?<!\S)(sm:|md:|lg:)?(pt|pb|pl|pr|mt|mb|ml|mr)-(\d+)(\.\d+)?(rem|em|px)(?!\S)/g
+        const regex = /(?<!\S)(sm:|md:|lg:)?(pt|pb|pl|pr|mt|mb|ml|mr|mnw|mxw)-(\d+)(\.\d+)?(rem|em|px)(?!\S)/g
 
         let matches = [...item.className.matchAll(regex)]
         // console.log(matches)
@@ -106,15 +106,23 @@ function kickCSS(s) {
     function lookupDeclaration(dec) {
         const decs = {
 
+            // padding
             pt: 'padding-top',
             pb: 'padding-bottom',
             pl: 'padding-left',
             pr: 'padding-right',
 
+            // margin
             mt: 'margin-top',
             mb: 'margin-bottom',
             ml: 'margin-left',
             mr: 'margin-right',
+
+            // widths
+            mxw: 'max-width',
+            mnw: 'min-width',
+
+
             
         }
         return decs[dec]
