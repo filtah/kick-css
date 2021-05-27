@@ -1,0 +1,35 @@
+html {
+    box-sizing: border-box;
+}
+
+*, *:before, *:after {
+    box-sizing: inherit;
+}
+
+body {
+    font-family: sans-serif;
+    padding: 1rem 0;
+}
+
+button {
+    border-radius: 0;
+    border: 1px solid;
+    padding: 1rem 2rem;
+    text-transform: uppercase;
+    letter-spacing: 0.0625rem;
+}
+
+.container {
+    max-width: 1100px;
+    padding: 0 1rem;
+    margin: 0 auto;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.box {
+    border: 1px solid;
+    padding: 1rem;
+}

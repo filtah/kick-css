@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kick CSS</title>
+    <link rel="stylesheet" href="./node_modules/normalize.css/normalize.css">
+    <link rel="stylesheet" href="./main.css">
+    <style class="kick-css"></style>
+</head>
+<body>
+    <main>
+        <div class="container text-center">
+
+            <div class="box md:ml-2rem md:mr-2rem">
+                <h1>Kick CSS</h1>
+                <button class="kick-me" id="kickMe">Kick Me</button>
+            </div>
+
+        </div>
+    </main>
+    <script src="./main.js"></script>
+    <script>
+        document.getElementById('kickMe').addEventListener('click', e => {
+            kickCSS('.kick-css')
+        })
+
+        document.addEventListener('keydown', e => {
+            if ( e.key.toLowerCase() === 'k' ) {
+                kickCSS('.kick-css')
+            }
+        })
+    </script>
+</body>
+</html>
