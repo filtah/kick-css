@@ -9,27 +9,28 @@ function kickCSS(s) {
     // window.kick_css_output += 'x'
     // let output = window.kick_css_output
 
-    let output = new Map([
-        [''    , ''],
-        ['sm:' , ''],
-        ['md:' , ''],
-        ['lg:' , ''],
+    // sort the output by media query breakpoints.
+    // init the map with breakpoint keys..
+    const output = new Map([
+        [''    , {}],
+        ['sm:' , {}],
+        ['md:' , {}],
+        ['lg:' , {}],
     ])
 
+
+    // init the output string..
     let outputHTML = ''
 
+    // query the dom..
     const query = document.querySelectorAll('[class]')
-
-    // console.log(query)
-
     query.forEach(function(item) {
 
         // console.log(item.className)
 
         const regex = /(?<!\S)(sm:|md:|lg:)?(pt|pb|pl|pr|mt|mb|ml|mr|mnw|mxw)-(\d+)(\.\d+)?(rem|em|px)(?!\S)/g
 
-        let matches = [...item.className.matchAll(regex)]
-        // console.log(matches)
+        const matches = [...item.className.matchAll(regex)]
         
         if ( matches.length ) {
             
@@ -44,51 +45,51 @@ function kickCSS(s) {
                     miniMQ:   match[1] || '',
                     fullMQ:   lookupMQ(match[1]) || '',
                     miniDec:  match[2],
-                    fullDec:  lookupDeclaration(match[2]),
+                    fullDec:  lookupProp(match[2]),
                     whole:    match[3],
                     fraction: match[4] || '',
                     unit:     match[5]
                 }
                 // console.log(_rule)
-    
-                let rule = `.${_rule.selector} { ${_rule.fullDec}: ${_rule.whole}${_rule.fraction}${_rule.unit}; }`
-                // console.log(rule)
+                
+                let mq = output.get(_rule.miniMQ)
 
-                if ( _rule.miniMQ ) {
-                    // just indent..
-                    rule = `  ${rule}`
-                }
-                    
-                output.set(_rule.miniMQ, output.get(_rule.miniMQ) + `${rule}\n`)
-                // console.log( output.get(_rule.miniMQ) )
+                mq['.'+_rule.selector] = `{ ${_rule.fullDec}: ${_rule.whole}${_rule.fraction}${_rule.unit}; }`
+
+                output.set(_rule.miniMQ, mq)
 
             })
-
-
         }
-    
     });
 
+    // build the output..
+    output.forEach((rules, mq) => {
 
-    output.forEach((styles, mq) => {
-
-        // console.log(mq, styles)
+        // console.log(mq, rules)
 
         // no media query..
-        if ( !mq && styles ) {
+        if ( !mq && Object.entries(rules).length ) {
 
-            outputHTML += styles
-            
+            for (const sel in rules) {
+                outputHTML += `${sel} ${rules[sel]}\n`
+            }
         }
         // has media query..
-        else if ( mq && styles ) {
+        else if ( mq && Object.entries(rules).length ) {
 
-            // console.log(lookupMQ(mq))
-            outputHTML += lookupMQ(mq) +` {\n${styles}}`
+            outputHTML += lookupMQ(mq) + ' {\n'
+
+            for (const sel in rules) {
+                outputHTML += `  ${sel} ${rules[sel]}\n`
+            }
+
+            outputHTML += '}\n'
 
         }
     })
 
+    // write the css to the main selector..
+    console.log('outputHTML:')
     console.log(outputHTML)
     selector.innerHTML = outputHTML
 
@@ -103,8 +104,8 @@ function kickCSS(s) {
         return sel.replace(/([:\.])/g, '\\$1')
     }
 
-    function lookupDeclaration(dec) {
-        const decs = {
+    function lookupProp(prop) {
+        const props = {
 
             // padding
             pt: 'padding-top',
@@ -121,22 +122,20 @@ function kickCSS(s) {
             // widths
             mxw: 'max-width',
             mnw: 'min-width',
-
-
             
         }
-        return decs[dec]
+        return props[prop]
     }
 
-    function lookupMQ(mQ) {
-        const mQs = {
+    function lookupMQ(mq) {
+        const mqs = {
 
             'sm:' : '@media (min-width: 576px)',
             'md:' : '@media (min-width: 768px)',
             'lg:' : '@media (min-width: 992px)',
 
         }
-        return mQs[mQ]
+        return mqs[mq]
     }
 
 }
