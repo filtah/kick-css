@@ -1,4 +1,4 @@
-function kickCSS(s) {
+function kickCSS(s, ssUrl='') {
 
     const selector = document.querySelector(s)
     if ( ! selector ) return
@@ -21,6 +21,11 @@ function kickCSS(s) {
 
     // init the output string..
     let outputHTML = ''
+    let previewHTML = ''
+
+    // external stylesheet index..
+    let ssIndex = getStyleSheetIndex(ssUrl)
+    // console.log({ssIndex})
 
     // query the dom..
     const query = document.querySelectorAll('[class]')
@@ -71,33 +76,98 @@ function kickCSS(s) {
         if ( !mq && Object.entries(rules).length ) {
 
             for (const sel in rules) {
+
+                if ( !hasRule(sel) ) {
+                    previewHTML += `${sel} ${rules[sel]}\n`
+                }
+
                 outputHTML += `${sel} ${rules[sel]}\n`
             }
         }
         // has media query..
         else if ( mq && Object.entries(rules).length ) {
 
-            outputHTML += lookupMQ(mq) + ' {\n'
+            let mqPreview = ''
+            let mqOutput = ''
 
             for (const sel in rules) {
-                outputHTML += `  ${sel} ${rules[sel]}\n`
+
+                if ( !hasRule(sel, lookupMQ(mq)) ) {
+                    mqPreview += `  ${sel} ${rules[sel]}\n`
+                }
+
+                mqOutput += `  ${sel} ${rules[sel]}\n`
             }
 
-            outputHTML += '}\n'
+            if ( mqPreview ) {
+                previewHTML += lookupMQ(mq) + ' {\n'
+                previewHTML += mqOutput
+                previewHTML += '}\n'
+            }
+
+            if ( mqOutput ) {
+                outputHTML += lookupMQ(mq) + ' {\n'
+                outputHTML += mqOutput
+                outputHTML += '}\n'
+            }
 
         }
     })
 
     // write the css to the main selector..
-    console.log('outputHTML:')
-    console.log(outputHTML)
+    console.log('CSS:')
+    console.log(previewHTML)
     selector.innerHTML = outputHTML
 
 
 
 
+    function getStyleSheetIndex(ss) {
+        for ( let i=0; i < document.styleSheets.length; i++ ) {
 
+            const el = document.styleSheets[i];
 
+            if ( el.href && el.href === location.origin + ss ) {
+                return i
+            }
+        }
+        return null
+    }
+
+    function hasRule(selectorText, conditionText='') {
+        if (ssIndex !== null) {
+            const rules = document.styleSheets[ssIndex].rules
+            for ( const rule of rules ) {
+    
+                if (
+                    rule.constructor.name === 'CSSMediaRule'
+                    && '@media ' + rule.conditionText === conditionText
+                ) {
+    
+                    for ( const mqRule of rule.cssRules ) {
+                        if (
+                            mqRule.constructor.name === 'CSSStyleRule'
+                            && mqRule.selectorText === selectorText
+                        ) {
+                            // console.log('MQ RULE', mqRule.selectorText)
+                            // console.log(mqRule.cssText)
+                            return true
+                        }
+                    }
+                }
+                else if (
+                    rule.constructor.name === 'CSSStyleRule'
+                    && rule.selectorText === selectorText
+                ) {
+                    // console.log('RULE', rule.selectorText)
+                    // console.log(rule.cssText)
+                    return true
+                }
+    
+    
+            }
+        }
+    }
 
     function escapeSelector(sel) {
         //escape : and .

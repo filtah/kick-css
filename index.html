@@ -13,7 +13,7 @@
     <main>
         <div class="container text-center">
 
-            <div class="box pt-6rem sm:pt-3rem md:pt-1.5rem mb-3rem">
+            <div class="box pt-6rem sm:pt-3rem md:pt-1.5rem mb-3rem pt-70px">
                 <h1>Kick CSS</h1>
                 <button class="kick-me" id="kickMe">Kick Me</button>
             </div>
@@ -35,7 +35,7 @@
     <script src="./main.js"></script>
     <script>
         document.getElementById('kickMe').addEventListener('click', e => {
-            kickCSS('.kick-css')
+            kickCSS('.kick-css', '/main.css')
         })
 
         document.addEventListener('keydown', e => {
