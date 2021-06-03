@@ -24,7 +24,8 @@ function kickCSS(s, ssUrl='') {
     let previewHTML = ''
 
     // external stylesheet index..
-    let ssIndex = getStyleSheetIndex(ssUrl)
+    const ssIndex = getStyleSheetIndex(ssUrl)
+    // console.log({ssUrl})
     // console.log({ssIndex})
 
     // query the dom..
