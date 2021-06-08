@@ -43,7 +43,7 @@ function kickCSS(s, ssUrl='') {
 
             // console.log(item.className)
 
-            const regex = /(?<!\S)(sm:|md:|lg:)?(p|pt|pb|pl|pr|px|py|m|mt|mb|ml|mr|mx|my|mnw|mxw|mnh|mxh)-(\d+)(\.\d+)?(rem|em|px|vw|vh|%)(?!\S)/g
+            const regex = /(?<!\S)(sm:|md:|lg:)?(p|pt|pb|pl|pr|px|py|m|mt|mb|ml|mr|mx|my|mnw|mxw|mnh|mxh)-((-?\d+)(\.\d+)?(rem|em|px|vw|vh|%)|auto|none|0)(?!\S)/g
 
             const matches = [...item.className.matchAll(regex)]
             
