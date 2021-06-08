@@ -35,6 +35,8 @@ button {
 }
 
 /* KICK */
+
+
 .pt-6rem { padding-top: 6rem; }
 .mb-3rem { margin-bottom: 3rem; }
 .ml-1rem { margin-left: 1rem; }
@@ -51,4 +53,9 @@ button {
   .md\:mr-4rem { margin-right: 4rem; }
   .md\:pb-1\.5rem { padding-bottom: 1.5rem; }
 }
+
+
+
+
+
 /* /KICK */
