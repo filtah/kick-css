@@ -43,7 +43,7 @@ function kickCSS(s, ssUrl='') {
 
             // console.log(item.className)
 
-            const regex = /(?<!\S)(sm:|md:|lg:)?(p|pt|pb|pl|pr|px|py|m|mt|mb|ml|mr|mx|my|mnw|mxw)-(\d+)(\.\d+)?(rem|em|px)(?!\S)/g
+            const regex = /(?<!\S)(sm:|md:|lg:)?(p|pt|pb|pl|pr|px|py|m|mt|mb|ml|mr|mx|my|mnw|mxw|mnh|mxh)-(\d+)(\.\d+)?(rem|em|px|vw|vh|%)(?!\S)/g
 
             const matches = [...item.className.matchAll(regex)]
             
@@ -151,6 +151,14 @@ function kickCSS(s, ssUrl='') {
             mx: `margin-left: ${value}; margin-right: ${value};`,
             my: `margin-top: ${value}; margin-bottom: ${value};`,
 
+            // width
+            mnw: `min-width: ${value}`,
+            mxw: `max-width: ${value};`,
+
+            //height
+            mnh: `min-height: ${value}`,
+            mxh: `max-height: ${value};`,
+
         };
 
         const block = `{ ${rules[prop]} }`
@@ -218,7 +226,7 @@ function kickCSS(s, ssUrl='') {
 
     function escapeSelector(sel) {
         //escape : and .
-        return sel.replace(/([:\.])/g, '\\$1')
+        return sel.replace(/([:\.%])/g, '\\$1')
     }
 
     function lookupProp(prop) {
