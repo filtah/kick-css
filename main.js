@@ -53,10 +53,14 @@ function kickCSS(s, ssUrl='') {
 
                     // console.log(match)
                     const rule = composeRule(match)
+                    if ( rule ) {
 
-                    let mq = output.get(rule.mq)
-                    mq[rule.selector] = rule.block
-                    output.set(rule.mq, mq)
+                        let mq = output.get(rule.mq)
+                        mq[rule.selector] = rule.block
+                        output.set(rule.mq, mq)
+
+                    }
+
 
                 })
             }
@@ -125,43 +129,46 @@ function kickCSS(s, ssUrl='') {
         let selector = '.' + escapeSelector(match[0]),
             mq       = match[1] || '',
             prop     = match[2],
-            whole    = match[3],
-            fraction = match[4] || '',
-            unit     = match[5];
-
-        const value = whole + fraction + unit
+            value    = match[3],
+            whole    = match[4] || '',
+            fraction = match[5] || '',
+            unit     = match[6] || '';
 
         const rules = {
 
             // padding
-            p:  `padding: ${value};`,
-            pt: `padding-top: ${value};`,
-            pr: `padding-right: ${value};`,
-            pb: `padding-bottom: ${value};`,
-            pl: `padding-left: ${value};`,
-            px: `padding-left: ${value}; padding-right: ${value};`,
-            py: `padding-top: ${value}; padding-bottom: ${value};`,
+            p:  { rule: `padding: ${value};`, forbid: ['auto', 'none'] },
+            pt: { rule: `padding-top: ${value};`, forbid: ['auto', 'none'] },
+            pr: { rule: `padding-right: ${value};`, forbid: ['auto', 'none'] },
+            pb: { rule: `padding-bottom: ${value};`, forbid: ['auto', 'none'] },
+            pl: { rule: `padding-left: ${value};`, forbid: ['auto', 'none'] },
+            px: { rule: `padding-left: ${value}; padding-right: ${value};`, forbid: ['auto', 'none'] },
+            py: { rule: `padding-top: ${value}; padding-bottom: ${value};`, forbid: ['auto', 'none'] },
 
             // margin
-            m:  `margin: ${value};`,
-            mt: `margin-top: ${value};`,
-            mr: `margin-right: ${value};`,
-            mb: `margin-bottom: ${value};`,
-            ml: `margin-left: ${value};`,
-            mx: `margin-left: ${value}; margin-right: ${value};`,
-            my: `margin-top: ${value}; margin-bottom: ${value};`,
+            m:  { rule: `margin: ${value};`, forbid: ['none'] },
+            mt: { rule: `margin-top: ${value};`, forbid: ['none'] },
+            mr: { rule: `margin-right: ${value};`, forbid: ['none'] },
+            mb: { rule: `margin-bottom: ${value};`, forbid: ['none'] },
+            ml: { rule: `margin-left: ${value};`, forbid: ['none'] },
+            mx: { rule: `margin-left: ${value}; margin-right: ${value};`, forbid: ['none'] },
+            my: { rule: `margin-top: ${value}; margin-bottom: ${value};`, forbid: ['none'] },
 
             // width
-            mnw: `min-width: ${value}`,
-            mxw: `max-width: ${value};`,
+            mnw: { rule: `min-width: ${value}`, forbid: ['none'] },
+            mxw: { rule: `max-width: ${value}`, forbid: ['auto'] },
 
             //height
-            mnh: `min-height: ${value}`,
-            mxh: `max-height: ${value};`,
+            mnh: { rule: `min-height: ${value}`, forbid: ['none'] },
+            mxh: { rule: `max-height: ${value}`, forbid: ['auto'] },
 
         };
 
-        const block = `{ ${rules[prop]} }`
+        if ( rules[prop].forbid.includes(value) ) {
+            return false
+        }
+
+        const block = `{ ${rules[prop].rule} }`
 
         return { mq, selector, block }
 
