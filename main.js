@@ -37,12 +37,27 @@ function kickCSS(s, ssUrl='') {
         // console.log({ssUrl})
         // console.log({ssIndex})
 
-        // query the dom..
+        // query the dom (all elements with any given class)..
         const query = document.querySelectorAll('[class]')
         query.forEach(function(item) {
 
             // console.log(item.className)
 
+            // should be passed to constructor as options..
+            const mqString      = 'sm:|md:|lg:'
+            const modHover      = '(?<hover>hover:)?' // not used (yet)..
+            const propString    = 'p|pt|pb|pl|pr|px|py|m|mt|mb|ml|mr|mx|my|mnw|mxw|mnh|mxh|t|b|l|r'
+            const unitString    = 'rem|em|px|vw|vh|%'
+            const keywordString = 'auto|none|0'
+            const selfString    = 'container|row'
+            const modImportant  = '(?<im>!)?'
+
+
+            const regex____ = new RegExp(`(?<!\\S)(?<mq>${mqString})?(?<prop>(?:${propString})-(?<val>(?<num>(?<int>-?\\d+)(?<dec>\\.\\d+)?)(?<unit>${unitString})|(?<keyword>${keywordString}))|(?<self>${selfString}))${modImportant}(?!\\S)`,'g')
+
+            const regex___ = new RegExp(`(?<!\\S)(?<mq>${mqString})?(?<prop>${propString})-(?<val>(?<whole>-?\\d+)(?<frac>\\.\\d+)?(?<unit>${unitString})|${keywordString})(?!\\S)`,'g')
+            const regex__ = new RegExp(`(?<!\\S)(?<mq>${mqString})?${modHover}(?<prop>${propString})-(?<val>(?<whole>-?\\d+)(?<frac>\\.\\d+)?(?<unit>${unitString})|${keywordString})(?!\\S)`,'g')
+            const regex_ = /(?<!\S)(?<mq>sm:|md:|lg:)?(?<hover>hover:)?(?<prop>p|pt|pb|pl|pr|px|py|m|mt|mb|ml|mr|mx|my|mnw|mxw|mnh|mxh|t|b|l|r)-(?<val>(?<whole>-?\d+)(?<frac>\.\d+)?(?<unit>rem|em|px|vw|vh|%)|auto|none|0)(?!\S)/g
             const regex = /(?<!\S)(sm:|md:|lg:)?(p|pt|pb|pl|pr|px|py|m|mt|mb|ml|mr|mx|my|mnw|mxw|mnh|mxh)-((-?\d+)(\.\d+)?(rem|em|px|vw|vh|%)|auto|none|0)(?!\S)/g
 
             const matches = [...item.className.matchAll(regex)]
@@ -51,12 +66,24 @@ function kickCSS(s, ssUrl='') {
 
                 matches.forEach(match => {
 
+                    // can now look at the groups property..
+                    // match.groups { mq, prop, val, num, int, dec, unit, keyword, self, im }
+
+                    // we need to pair the match with the corresponding ruleDef.
+                    // then we compose the rule based on the given parameters.
+
                     // console.log(match)
                     const rule = composeRule(match)
                     if ( rule ) {
 
+                        // find the mq group
                         let mq = output.get(rule.mq)
+
+                        // this is important, we match the rule with the selector key.
+                        // like this, we prevent duplicate rules being added..
                         mq[rule.selector] = rule.block
+
+                        // write it back..
                         output.set(rule.mq, mq)
 
                     }
@@ -66,20 +93,32 @@ function kickCSS(s, ssUrl='') {
             }
         });
 
+
         // build the output..
         output.forEach((rules, mq) => {
 
             // console.log(mq, rules)
 
+            // we need to re-order the selectors based on the order property.
+            // first, this needs to be converted into an array, then can use the array method 'sort'
+            let sorted = Object.entries(rules).sort((a, b) => a[1].order - b[1].order)
+
             // no media query..
-            if ( !mq && Object.entries(rules).length ) {
+            if ( !mq && sorted.length ) {
+            // if ( !mq && Object.entries(rules).length ) {
+
+                sorted.forEach((sel, index) => {
+                    if ( !hasRule(ssIndex, sel[0]) ) {
+                        // TODO: ensure rule obj. has output property (css code)
+                        previewHTML += `${sel[0]} ${sel[1].output}\n`
+                    }
+                    outputHTML += `${sel} ${rules[sel]}\n`
+                })
 
                 for (const sel in rules) {
-
                     if ( !hasRule(ssIndex, sel) ) {
                         previewHTML += `${sel} ${rules[sel]}\n`
                     }
-
                     outputHTML += `${sel} ${rules[sel]}\n`
                 }
             }
@@ -91,12 +130,16 @@ function kickCSS(s, ssUrl='') {
 
                 for (const sel in rules) {
 
+                    // note indentation..
+
                     if ( !hasRule(ssIndex, sel, lookupMQ(mq)) ) {
                         mqPreview += `  ${sel} ${rules[sel]}\n`
                     }
 
                     mqOutput += `  ${sel} ${rules[sel]}\n`
                 }
+
+                // wrap the rules in respective media query block..
 
                 if ( mqPreview ) {
                     previewHTML += lookupMQ(mq) + ' {\n'
@@ -275,3 +318,42 @@ function kickCSS(s, ssUrl='') {
     }
 
 }
+
+
+/*
+{
+
+	prop		<string>				// eg: container, 'pt', 'p', 'mx', 'mw'
+										// start with single word (a-z only) consider allowed naming conventions / safe characters
+										// careful with '-'. must test for issues
+										// required
+
+	order		<int>					// number specifying the order sequence of this rule, in relation to others.
+										// default: 0
+
+	mqExcludes	<array of strings>		// eg: ['md', 'lg']
+				<string>				// also 'all', which is all given mqs.
+										// default: 'all'
+
+	keywords	<array of strings>		// eg: ['auto', 'none', '0', '400', '700']
+										// default: []
+
+	numeric		<bool>					// allows the use of numbers
+										// default: true
+
+	decimals	<bool>					// allow fractional numbers
+										// property ignored if numeric:false
+										// default: true
+
+	signed		<bool>					// allow negative numbers
+										// property ignored if numeric:false
+										// default: true
+
+	units		<array of strings>		// eg: ['px', 'rem']
+										// default: []
+										// required if numeric:true
+
+	important	<bool>					// default: false
+
+}
+*/
